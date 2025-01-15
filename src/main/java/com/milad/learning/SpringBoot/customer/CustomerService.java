@@ -41,26 +41,29 @@ public class CustomerService {
        this.customerRepository.save(customer);
     }
 
+    public Customer getCustomerByEmail(String email) {
+        return this.customerRepository.findByEmail(email)
+                .orElseThrow(
+                        () -> new RuntimeException("customer with email " + email + " not found")
+                );
+    }
+
+    @Transactional
     public void editCustomer(Long customerId, CustomerDto customerDto) {
-        Customer oldCustomer = customers.stream()
-                .filter(customer -> customer.getId().equals(customerId))
-                .findFirst()
+        Customer oldCustomer = customerRepository.findById(customerId)
                 .orElseThrow(
                         () -> new RuntimeException("customer with id " + customerId + " not found")
                 );
+
         oldCustomer.setName(customerDto.name());
         oldCustomer.setEmail(customerDto.email());
         oldCustomer.setDob(customerDto.dob());
-        //oldCustomer.setAge(customerDto.age());
+        this.customerRepository.save(oldCustomer);
     }
 
+    @Transactional
     public void deleteCustomer(Long customerId) {
-        Customer oldCustomer = customers.stream()
-                .filter(customer -> customer.getId().equals(customerId))
-                .findFirst()
-                .orElseThrow(
-                        () -> new RuntimeException("customer with id " + customerId + " not found")
-                );
-        customers.remove(oldCustomer);
+
+        customerRepository.deleteById(customerId);
     }
 }
